@@ -28,6 +28,7 @@ void *test(void *data)
     while(i <= 101)
     {
         gotoxy(1,40);
+        printf("MultiThread Test ...  \n");
         printf("[%-100s][%d%%][%c]\r", bar, i, lable[i %4 ]);
         fflush(stdout);
         bar[i++] = '#';

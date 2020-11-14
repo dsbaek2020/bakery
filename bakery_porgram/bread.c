@@ -276,6 +276,7 @@ int search(BREAD_DATA breads[], char searchMethod, char *breadNumber)
 
 int buyBread(BREAD_DATA breads[]){
 
+    char keyValue;
     int result;
     char cmd[10];
     int price=0;
@@ -325,19 +326,37 @@ int buyBread(BREAD_DATA breads[]){
         strcpy(InputTextMenu.text,"빵번호를 입력하세요: ");
         showInputBox(&InputTextMenu);
         
-        number[0]= getch();
-        //goto cursor to input area
-        gotoxy((InputTextMenu.x)+1,(InputTextMenu.y)+2);
-        printf("key value1: %c\n",number[0]);
+        //----for MultiThread-----------------------------
+        int i=0;
+        do{
+            keyValue= getch();
+            if(keyValue !='\n'){
+                number[i] =keyValue;
+                //goto cursor to input area
+                gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
+                printf("%c",number[i]);
+                i++;
+            }
+        }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
+        //scanf("%s", &number[0]);   <--- non-MultiThread--
         
         
-        //scanf("%s", &number[0]);
-        
-
         //printf("몇 개 구매하실건가요: ");
         strcpy(InputTextMenu.text,"몇 개 구매하실건가요: ");
         showInputBox(&InputTextMenu);
-        scanf("%d", &count);
+        //----for MultiThread-----------------------------
+        i=0;
+        do{
+            keyValue= getch();
+            if(keyValue !='\n'){
+                count =keyValue - '0';   // for ascii to int
+                //goto cursor to input area
+                gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
+                printf("%d",count);
+                i++;
+            }
+        }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
+        //scanf("%d", &count);  <--- non-MultiThread--
 
         dataNumber=search(breads, 'b', &number[0]);
 
