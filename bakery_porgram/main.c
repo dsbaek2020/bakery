@@ -8,7 +8,7 @@
 #include <string.h>
 #include "bread.h"
 #include "ui.h"
-#include <pthread>
+#include <pthread.h>
 
 
 
@@ -16,7 +16,39 @@
 int  NumOfpang = 7;
 
 
+// 쓰레드 함수
+void *test(void *data)
+{
+    int i=0;
+    char bar[102];
+    memset(bar, 0, sizeof(bar));
+    const char *lable = "|/-\\";
+    
 
+    while(i <= 101)
+    {
+        gotoxy(1,40);
+        printf("[%-100s][%d%%][%c]\r", bar, i, lable[i %4 ]);
+        fflush(stdout);
+        bar[i++] = '#';
+        usleep(100000);
+    }
+    
+    
+    /*int a = *(int *)data;
+    
+    for (i = 0; i < 10; i++)
+    {
+        gotoxy(1,40);
+        printf("%d \n", i*a);
+        sleep(2);
+    }
+     */
+    return (void *)(i * 100);
+    
+    
+}
+                  
 
 int main(){
     int result;
@@ -29,7 +61,19 @@ int main(){
                              {"raspberry" ,"127",3000,"****" , 0},
                              {"cookies"   ,"128",2000,"***"  , 0},
                              {"creamchee" ,"129",3500,"*****", 0} };
-
+    
+    int a = 100;
+    pthread_t thread_t;
+    int status;
+    
+    // 쓰레드를 생성한다.
+    if (pthread_create(&thread_t, NULL, test, (void *)&a) < 0)
+    {
+        perror("thread create error:");
+        exit(0);
+    }
+    
+    
     while(1){
         
        
@@ -64,6 +108,11 @@ int main(){
         
     }
     printf("Have a nice day^^");
+    
+    // 쓰레드가 종료되기를 기다린후
+    // 쓰레드의 리턴값을 출력한다.
+    pthread_join(thread_t, (void **)&status);
+    printf("Thread End %d\n", status);
     
 }
 

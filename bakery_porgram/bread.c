@@ -85,6 +85,7 @@ int MainData(BREAD_DATA *ptr, int NumOfpang){
     int keyValue;
     
     clear();
+    gotoxy(1,1);
     
     printf(
     "██████╗  █████╗ ██╗  ██╗███████╗██████╗ ██╗   ██╗\n"
@@ -281,6 +282,8 @@ int buyBread(BREAD_DATA breads[]){
     char number[20];
     int count;
     int dataNumber;
+
+    
     
     
     UI_OUTLINE outLine={
@@ -321,7 +324,14 @@ int buyBread(BREAD_DATA breads[]){
         //printf("빵번호를 입력하세요: ");
         strcpy(InputTextMenu.text,"빵번호를 입력하세요: ");
         showInputBox(&InputTextMenu);
-        scanf("%s", &number[0]);
+        
+        number[0]= getch();
+        //goto cursor to input area
+        gotoxy((InputTextMenu.x)+1,(InputTextMenu.y)+2);
+        printf("key value1: %c\n",number[0]);
+        
+        
+        //scanf("%s", &number[0]);
         
 
         //printf("몇 개 구매하실건가요: ");
