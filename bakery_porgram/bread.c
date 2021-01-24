@@ -15,7 +15,9 @@
 #include "getch.h"
 
 
-//#define clear()
+
+
+extern int flag;
 
 
 UI_BUTTON ButtonBuy={
@@ -46,11 +48,18 @@ UI_BUTTON ButtonSummerize={
      {"╰―――――――――――――――――╯"}}
 };
 
-UI_BUTTON ButtonExit={
+UI_BUTTON AI_mode={
     30,32,
     {{"╭―――――――――――――――――╮"},
-     {"│   0. 취소하기   │"},
+     {"│   5. 자동추천   │"},
      {"╰―――――――――――――――――╯"}}
+};
+
+UI_BUTTON ButtonExit={
+    30,35,
+    {{"╭―――――――――――――――――╮"},
+        {"│   0. 취소하기   │"},
+        {"╰―――――――――――――――――╯"}}
 };
 
 
@@ -65,83 +74,15 @@ UI_INPUT_TEXT InputTextMenu={
 
 
 
-
-
-
-void DataLoad(BREAD_DATA *ptr, char *number, char *name, int price, char *preference,int count){
-    strcpy(ptr->number, number);
-    strcpy(ptr->name, name);
-    ptr->price = price;
-    strcpy(ptr->preference, preference);
-    ptr->count = count;
-}
-
-void ContactMenuByPointer(BREAD_DATA *p){
-    printf("%s : %s : %d : %s : %d \n", p->number, p->name,p->price, p->preference, p->count);
-}
-
-int MainData(BREAD_DATA *ptr, int NumOfpang){
+int GetMenuNumber(void){
+    
+    char keyValue;
     int select;
-    int keyValue;
-    
-    clear();
-    gotoxy(1,1);
-    
-    printf(
-    "██████╗  █████╗ ██╗  ██╗███████╗██████╗ ██╗   ██╗\n"
-    "██╔══██╗██╔══██╗██║ ██╔╝██╔════╝██╔══██╗╚██╗ ██╔╝\n"
-    "██████╔╝███████║█████╔╝ █████╗  ██████╔╝ ╚████╔╝\n"
-    "██╔══██╗██╔══██║██╔═██╗ ██╔══╝  ██╔══██╗  ╚██╔╝\n"
-    "██████╔╝██║  ██║██║  ██╗███████╗██║  ██║   ██║\n"
-    "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝\n"
-    );
-    
-    printf("번호 |  빵이름    |  가격  |   선호도 | 판매량 \n");
-    for(int i=0; i<NumOfpang; i++){
-        ContactMenuByPointer(ptr+i);
-    }
-
-    
-    printf(" ____  _____ ____  _   _  \n");
-    printf("|    || ___ |  _ || | | | \n");
-    printf("| | | | ____| | | | |_| | \n");
-    printf("|_|_|_|_____)_| |_|____/ \n");
-    
-/*
-    printf("╭―――――――――――――――――╮ \n"
-           "│   1. 구매하기     │ \n"
-           "╰―――――――――――――――――╯\n");
- 
-    printf("╭―――――――――――――――――╮ \n");
-    printf("│   2. 검색하기     │ \n");
-    printf("╰―――――――――――――――――╯\n");
- 
- 
-     printf("╭―――――――――――――――――╮ \n");
-     printf("│   3. 등록하기     │ \n");
-     printf("╰―――――――――――――――――╯\n");
-     printf("╭―――――――――――――――――╮ \n");
-     printf("│   4. 정산하기     │ \n");
-     printf("╰―――――――――――――――――╯\n");
-     printf("╭―――――――――――――――――╮ \n");
-     printf("│   0. 취소하기     │ \n");
-     printf("╰―――――――――――――――――╯\n");
- 
- 
-*/
-    showButton(&ButtonBuy);
-    showButton(&ButtonSearch);
-    showButton(&ButtonAdd);
-    showButton(&ButtonSummerize);
-    showButton(&ButtonExit);
-    
-
-    
     //do{
     keyValue= getch();
     //printf("key value1: %c\n",keyValue);
-
-
+    
+    
     if(keyValue==0x1b){
         keyValue= getch();
         //printf("key value2: %x\n",keyValue);
@@ -157,10 +98,10 @@ int MainData(BREAD_DATA *ptr, int NumOfpang){
                 case 0x44: printf("LEFT WAS PRESSED\n"); break;
                 case 0x43: printf("RIGHT WAS PRESSED\n"); break;
                     
-                /*case 72: printf("UP WAS PRESSED\n"); break;
-                case 80: printf("DOWN WAS PRESSED\n"); break;
-                case 75: printf("LEFT WAS PRESSED\n"); break;
-                case 77: printf("RIGHT WAS PRESSED\n"); break;*/
+                    /*case 72: printf("UP WAS PRESSED\n"); break;
+                     case 80: printf("DOWN WAS PRESSED\n"); break;
+                     case 75: printf("LEFT WAS PRESSED\n"); break;
+                     case 77: printf("RIGHT WAS PRESSED\n"); break;*/
             }
         }
     }
@@ -169,30 +110,60 @@ int MainData(BREAD_DATA *ptr, int NumOfpang){
         select = keyValue - '0';
     }
     
-    sleep(2);
-
-    
-    
-    //showInputBox(&InputTextMenu);
-       
-  /*  printf("1. 구매하기 \n");
-    printf("2. 검색하기 \n");
-    printf("3. 등록하기 \n");
-    printf("4. 정산하기 \n");
-    printf("0. 나가기 \n");
-    printf("메뉴를 선택햐세요. 0번누르면 종료");*/
-    
-    /*
-    scanf("%d", &select);
-    gotoxy(1,39);
-    
-
-    if(select > 4)
-    {
-      printf("없는 메뉴 입니다.\n");
-    }*/
-
     return select;
+}
+
+
+
+
+
+void DataLoad(BREAD_DATA *ptr, char *number, char *name, int price, char *preference,int count){
+    strcpy(ptr->number, number);
+    strcpy(ptr->name, name);
+    ptr->price = price;
+    strcpy(ptr->preference, preference);
+    ptr->count = count;
+}
+
+void ContactMenuByPointer(BREAD_DATA *p){
+    printf("%s : %s : %d : %s : %d : %d \n", p->number, p->name,p->price,
+           p->preference, p->count, p->kcal);
+}
+
+int MainData(BREAD_DATA *ptr, int NumOfpang){
+
+    //clear();
+    gotoxy(1,1);
+    
+    printf(
+    "██████╗  █████╗ ██╗  ██╗███████╗██████╗ ██╗   ██╗\n"
+    "██╔══██╗██╔══██╗██║ ██╔╝██╔════╝██╔══██╗╚██╗ ██╔╝\n"
+    "██████╔╝███████║█████╔╝ █████╗  ██████╔╝ ╚████╔╝\n"
+    "██╔══██╗██╔══██║██╔═██╗ ██╔══╝  ██╔══██╗  ╚██╔╝\n"
+    "██████╔╝██║  ██║██║  ██╗███████╗██║  ██║   ██║\n"
+    "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝\n"
+    );
+    
+    printf("번호 |  빵이름    |  가격  |   선호도 | 판매량  | 열량\n");
+    for(int i=0; i<NumOfpang; i++){
+        ContactMenuByPointer(ptr+i);
+    }
+
+    
+    printf(" ____  _____ ____  _   _  \n");
+    printf("|    || ___ |  _ || | | | \n");
+    printf("| | | | ____| | | | |_| | \n");
+    printf("|_|_|_|_____)_| |_|____/ \n");
+    
+    showButton(&ButtonBuy);
+    showButton(&ButtonSearch);
+    showButton(&ButtonAdd);
+    showButton(&ButtonSummerize);
+    showButton(&AI_mode);
+    showButton(&ButtonExit);
+
+
+    return 0;
 }
 
 int addUser(BREAD_DATA AddrInfo[], int i){
@@ -283,6 +254,7 @@ int buyBread(BREAD_DATA breads[]){
     char number[20];
     int count;
     int dataNumber;
+    int i=0;
 
     
     
@@ -320,14 +292,14 @@ int buyBread(BREAD_DATA breads[]){
     
 
     while(1){
-        
-        
+
         //printf("빵번호를 입력하세요: ");
         strcpy(InputTextMenu.text,"빵번호를 입력하세요: ");
         showInputBox(&InputTextMenu);
         
-        //----for MultiThread-----------------------------
-        int i=0;
+        
+        //----for MultiThread--------------------------
+        i=0;
         do{
             keyValue= getch();
             if(keyValue !='\n'){
@@ -338,16 +310,35 @@ int buyBread(BREAD_DATA breads[]){
                 i++;
             }
         }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
-        //scanf("%s", &number[0]);   <--- non-MultiThread--
+        number[i] ='\0'; //널문자 추가
         
+        
+        /*
+        flag =1;   // 세마포어
+        scanf("%s", &number[0]);   //<--- non-MultiThread--
+        //scanf 실행후 (번호입력하고 엔터 입력) getch가 실행되면 getch는 scanf시 엔터키의 값 LF 문자를 읽어옮(scanf후에 입력버퍼에 LF 가 남아 있음
+        flag =0;
+         */
         
         //printf("몇 개 구매하실건가요: ");
         strcpy(InputTextMenu.text,"몇 개 구매하실건가요: ");
         showInputBox(&InputTextMenu);
+        
+        //usleep(1000000);  // debug code
+        
+        
         //----for MultiThread-----------------------------
         i=0;
+        keyValue =0;
         do{
             keyValue= getch();
+            
+            //debug code
+            /*flag =1;
+            printf("key value1: %x\n",keyValue);
+            usleep(5000000);
+            flag =0;*/
+            
             if(keyValue !='\n'){
                 count =keyValue - '0';   // for ascii to int
                 //goto cursor to input area
@@ -365,7 +356,7 @@ int buyBread(BREAD_DATA breads[]){
         
         gotoxy(2,35);
         printf("총 %d 원 입니다",price);
-
+/*
         //printf("구매를 마치시겠습니까? (yes/no) ");
         strcpy(InputTextMenu.text,"마치시겠습니까? (yes/no)");
         showInputBox(&InputTextMenu);
@@ -383,7 +374,115 @@ int buyBread(BREAD_DATA breads[]){
       // 질문 계속
          result =0;
         }
+ */
     }
     return result;
      
  }
+
+
+
+
+
+int AI_mode_Buy(BREAD_DATA breads[]){
+    
+    char keyValue;
+    int result;
+    int totalPrice;
+    int totalkcal;
+    int maxMoney;
+    char strDecValue[10];
+    
+
+    int i;
+    
+    int itemBasket[10];
+    int numOfItem;
+    int itemNumber;
+    
+    
+    
+    
+    
+    UI_OUTLINE outLine={
+        1,20,
+        {  { "╭―――――――――――――――――――――――――╮"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"│                         │"},
+            {"╰―――――――――――――――――――――――――╯"}}
+    };
+    
+    UI_INPUT_TEXT InputTextMenu={
+        3,22,
+        "예산을 입력하세요: ",
+        {{"+-----------------+"},
+         {"|                 |"},
+         {"+-----------------+"}}
+    };
+    
+    
+    
+    showOutLine(&outLine);
+    
+    
+    
+    while(1){
+        
+        strcpy(InputTextMenu.text,"예산을 입력하세요: ");
+        showInputBox(&InputTextMenu);
+        
+        //----for MultiThread--------------------------
+        i=0;
+        do{
+            keyValue= getch();
+            if(keyValue !='\n'){
+                strDecValue[i] =keyValue;
+                //goto cursor to input area
+                gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
+                printf("%c",strDecValue[i]);
+                i++;
+            }
+        }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
+        strDecValue[i] ='\0'; //널문자 추가
+        
+        maxMoney = atoi(strDecValue);
+        
+        numOfItem =0;
+        itemNumber =0;
+        totalPrice=0;
+        totalkcal=0;
+        while(totalPrice+breads[itemNumber].price < maxMoney){
+            
+            //아이템 추가
+            itemBasket[numOfItem++]=itemNumber;
+            
+            //총가격 계산
+            totalPrice +=breads[itemNumber].price;
+            
+            //총칼로리 계산
+            totalkcal +=breads[itemNumber].kcal;
+            
+            //판매 수량 업데이트
+            breads[itemNumber].count +=1;
+            
+            itemNumber++;
+        }
+        
+        gotoxy(2,35);
+        printf("총 %d 원 입니다.\n",totalPrice);
+        printf("그리고 총 %d 칼리로리 입니다.\n",totalkcal);
+        
+    }
+    return result;
+    
+}
