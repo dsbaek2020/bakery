@@ -22,10 +22,10 @@ typedef struct{
 
 void DataLoad(BREAD_DATA *ptr, char *name, char *number, int price, char *preference, int count);
 void ContactMenuByPointer(BREAD_DATA *p);
-int MainData(BREAD_DATA *ptr, int NumOfpang);
-int addUser(BREAD_DATA AddrInfo[], int i);
+int DisplayMainPanel(BREAD_DATA *ptr, int NumOfpang);
+int addNewBread(BREAD_DATA AddrInfo[], int i);
 int search(BREAD_DATA breads[], char searchMethod, char *breadNumber);
-int buyBread(BREAD_DATA breads[]);
+void buyBread(BREAD_DATA breads[]);
 int AI_mode_Buy(BREAD_DATA breads[]);
 int GetMenuNumber(void);
 

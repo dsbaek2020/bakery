@@ -15,7 +15,14 @@
 #include "getch.h"
 
 
-
+typedef enum{
+	STRING = 1,
+	INTEGER
+}dataformat_t;
+//#define STRING_TYPE	"%s"
+//#define INT_TYPE		"%d"
+//const char *StingType = "%s";
+//const char *IntegerType = "%d";
 
 extern int flag;
 
@@ -72,6 +79,49 @@ UI_INPUT_TEXT InputTextMenu={
     {"+-----------------+"}}
 };
 
+//----MultiThread type scanf  ------------------
+void InputTextBox(UI_INPUT_TEXT *textBox, char string[]){
+
+	int i;
+	char keyValue;
+
+	i=0;
+	do{
+		keyValue= getch();
+		if(keyValue !='\n'){
+			string[i] =keyValue;
+			//goto cursor to input area
+			gotoxy((textBox->x)+1+i,(textBox->y)+2);
+			printf("%c",string[i]);
+			i++;
+		}
+	}while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
+	string[i] ='\0'; //널문자 추가
+
+}
+
+
+
+//----MultiThread type scanf  ------------------
+/*void InputNumberBox(UI_INPUT_TEXT *numberInputBox, int *num){
+
+	int i;
+	char keyValue;
+
+	i=0;
+	do{
+		keyValue= getch();
+
+		if(keyValue !='\n'){
+			*num =(keyValue - '0');
+			//goto cursor to input area
+			gotoxy((numberInputBox->x)+1+i,(numberInputBox->y)+2);
+			printf("%d",*num);
+			i++;
+		}
+	}while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
+}*/
+
 
 
 int GetMenuNumber(void){
@@ -125,12 +175,12 @@ void DataLoad(BREAD_DATA *ptr, char *number, char *name, int price, char *prefer
     ptr->count = count;
 }
 
-void ContactMenuByPointer(BREAD_DATA *p){
+void DiplayData(BREAD_DATA *p){
     printf("%s : %s : %d : %s : %d : %d \n", p->number, p->name,p->price,
            p->preference, p->count, p->kcal);
 }
 
-int MainData(BREAD_DATA *ptr, int NumOfpang){
+int DisplayMainPanel(BREAD_DATA *ptr, int NumOfpang){
 
     //clear();
     gotoxy(1,1);
@@ -146,7 +196,7 @@ int MainData(BREAD_DATA *ptr, int NumOfpang){
     
     printf("번호 |  빵이름    |  가격  |   선호도 | 판매량  | 열량\n");
     for(int i=0; i<NumOfpang; i++){
-        ContactMenuByPointer(ptr+i);
+    	DiplayData(ptr+i);
     }
 
     
@@ -166,7 +216,7 @@ int MainData(BREAD_DATA *ptr, int NumOfpang){
     return 0;
 }
 
-int addUser(BREAD_DATA AddrInfo[], int i){
+int addNewBread(BREAD_DATA AddrInfo[], int i){
 
     int result;
     char cmd[10];
@@ -245,19 +295,13 @@ int search(BREAD_DATA breads[], char searchMethod, char *breadNumber)
 }
 
 
-int buyBread(BREAD_DATA breads[]){
-
-    char keyValue;
-    int result;
-    char cmd[10];
-    int price=0;
-    char number[20];
-    int count;
-    int dataNumber;
-    int i=0;
-
+void buyBread(BREAD_DATA breads[]){
     
-    
+	char string[20];
+	char breadNumber[20];
+	int price=0;
+	int count;
+	int dataNumber;
     
     UI_OUTLINE outLine={
         1,20,
@@ -293,91 +337,51 @@ int buyBread(BREAD_DATA breads[]){
 
     while(1){
 
-        //printf("빵번호를 입력하세요: ");
-        strcpy(InputTextMenu.text,"빵번호를 입력하세요: ");
-        showInputBox(&InputTextMenu);
-        
-        
-        //----for MultiThread--------------------------
-        i=0;
-        do{
-            keyValue= getch();
-            if(keyValue !='\n'){
-                number[i] =keyValue;
-                //goto cursor to input area
-                gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
-                printf("%c",number[i]);
-                i++;
-            }
-        }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
-        number[i] ='\0'; //널문자 추가
-        
-        
-        /*
-        flag =1;   // 세마포어
-        scanf("%s", &number[0]);   //<--- non-MultiThread--
-        //scanf 실행후 (번호입력하고 엔터 입력) getch가 실행되면 getch는 scanf시 엔터키의 값 LF 문자를 읽어옮(scanf후에 입력버퍼에 LF 가 남아 있음
-        flag =0;
-         */
-        
-        //printf("몇 개 구매하실건가요: ");
-        strcpy(InputTextMenu.text,"몇 개 구매하실건가요: ");
-        showInputBox(&InputTextMenu);
-        
-        //usleep(1000000);  // debug code
-        
-        
-        //----for MultiThread-----------------------------
-        i=0;
-        keyValue =0;
-        do{
-            keyValue= getch();
-            
-            //debug code
-            /*flag =1;
-            printf("key value1: %x\n",keyValue);
-            usleep(5000000);
-            flag =0;*/
-            
-            if(keyValue !='\n'){
-                count =keyValue - '0';   // for ascii to int
-                //goto cursor to input area
-                gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
-                printf("%d",count);
-                i++;
-            }
-        }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
-        //scanf("%d", &count);  <--- non-MultiThread--
+		//printf("빵번호를 입력하세요: ");
+		strcpy(InputTextMenu.text,"빵번호를 입력하세요: ");
+		showInputBox(&InputTextMenu);
 
-        dataNumber=search(breads, 'b', &number[0]);
 
-        price = price + breads[dataNumber].price * count ;
-        breads[dataNumber].count = breads[dataNumber].count + count;
-        
-        gotoxy(2,35);
-        printf("총 %d 원 입니다",price);
-/*
-        //printf("구매를 마치시겠습니까? (yes/no) ");
-        strcpy(InputTextMenu.text,"마치시겠습니까? (yes/no)");
-        showInputBox(&InputTextMenu);
-        scanf("%s", &cmd[0]);
+		//----for MultiThread--------------------------
+		InputTextBox(&InputTextMenu, breadNumber);
 
-        if(  strcmp(cmd, "yes") == 0){
 
-         printf("구매가 완료됐습니다. 감사합니다.\n");
-         result = 1;
-         
-           break;
-        }
-        else{
-         //printf("취소 되었습니다. \n");
-      // 질문 계속
-         result =0;
-        }
- */
+		//printf("몇 개 구매하실건가요: ");
+		strcpy(InputTextMenu.text,"몇 개 구매하실건가요: ");
+		showInputBox(&InputTextMenu);
+
+
+		//----for MultiThread--------------------------
+		InputTextBox(&InputTextMenu, string);
+		count = atoi(string);
+		//scanf("%d", &count);  <--- non-MultiThread--
+
+		// search from database
+		dataNumber=search(breads, 'b', &breadNumber[0]);
+
+		// update database
+		price = price + breads[dataNumber].price * count ;
+		breads[dataNumber].count = breads[dataNumber].count + count;
+
+		gotoxy(2,35);
+		printf("총 %d 원 입니다",price);
+
+		//printf("구매를 마치시겠습니까? (yes/no) ");
+		strcpy(InputTextMenu.text,"마치시겠습니까? (yes/no)");
+		showInputBox(&InputTextMenu);
+		//----for MultiThread--------------------------
+		InputTextBox(&InputTextMenu, string);
+		//scanf("%s", &string[0]);
+
+		if(  strcmp(string, "yes") == 0){
+			printf("구매가 완료됐습니다. 감사합니다.\n");
+			sleep(1);
+			clear();
+			//result = 1;
+			break;
+		}
+
     }
-    return result;
-     
  }
 
 
@@ -386,20 +390,16 @@ int buyBread(BREAD_DATA breads[]){
 
 int AI_mode_Buy(BREAD_DATA breads[]){
     
-    char keyValue;
-    int result;
-    int totalPrice;
-    int totalkcal;
-    int maxMoney;
-    char strDecValue[10];
-    
+	char string[20];
+	int result;
+	int totalPrice;
+	int totalkcal;
+	int maxMoney;
 
-    int i;
-    
-    int itemBasket[10];
-    int numOfItem;
-    int itemNumber;
-    
+	int itemBasket[10];
+	int numOfItem;
+	int itemNumber;
+
     
     
     
@@ -438,49 +438,66 @@ int AI_mode_Buy(BREAD_DATA breads[]){
     
     while(1){
         
-        strcpy(InputTextMenu.text,"예산을 입력하세요: ");
-        showInputBox(&InputTextMenu);
+		strcpy(InputTextMenu.text,"예산을 입력하세요: ");
+		showInputBox(&InputTextMenu);
+
+		//----for MultiThread--------------------------
+		InputTextBox(&InputTextMenu, string);
+		/*i=0;
+		do{
+			keyValue= getch();
+			if(keyValue !='\n'){
+				strDecValue[i] =keyValue;
+				//goto cursor to input area
+				gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
+				printf("%c",strDecValue[i]);
+				i++;
+			}
+		}while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
+		strDecValue[i] ='\0'; //널문자 추가
+		*/
+
+		maxMoney = atoi(string); // STRING TO INT
+
+		numOfItem =0;
+		itemNumber =0;
+		totalPrice=0;
+		totalkcal=0;
+		while(totalPrice+breads[itemNumber].price < maxMoney){
+
+			//아이템 추가
+			itemBasket[numOfItem++]=itemNumber;
+
+			//총가격 계산
+			totalPrice +=breads[itemNumber].price;
+
+			//총칼로리 계산
+			totalkcal +=breads[itemNumber].kcal;
+
+			//판매 수량 업데이트
+			breads[itemNumber].count +=1;
+
+			itemNumber++;
+		}
+
+		gotoxy(2,35);
+		printf("총 %d 원 입니다.\n",totalPrice);
+		printf("그리고 총 %d 칼리로리 입니다.\n",totalkcal);
         
-        //----for MultiThread--------------------------
-        i=0;
-        do{
-            keyValue= getch();
-            if(keyValue !='\n'){
-                strDecValue[i] =keyValue;
-                //goto cursor to input area
-                gotoxy((InputTextMenu.x)+1+i,(InputTextMenu.y)+2);
-                printf("%c",strDecValue[i]);
-                i++;
-            }
-        }while(keyValue !='\n');  //LF (character : \n, Unicode : U+000A, hex : 0x0a): This is simply the '\n'
-        strDecValue[i] ='\0'; //널문자 추가
-        
-        maxMoney = atoi(strDecValue);
-        
-        numOfItem =0;
-        itemNumber =0;
-        totalPrice=0;
-        totalkcal=0;
-        while(totalPrice+breads[itemNumber].price < maxMoney){
-            
-            //아이템 추가
-            itemBasket[numOfItem++]=itemNumber;
-            
-            //총가격 계산
-            totalPrice +=breads[itemNumber].price;
-            
-            //총칼로리 계산
-            totalkcal +=breads[itemNumber].kcal;
-            
-            //판매 수량 업데이트
-            breads[itemNumber].count +=1;
-            
-            itemNumber++;
-        }
-        
-        gotoxy(2,35);
-        printf("총 %d 원 입니다.\n",totalPrice);
-        printf("그리고 총 %d 칼리로리 입니다.\n",totalkcal);
+		//printf("구매를 마치시겠습니까? (yes/no) ");
+		strcpy(InputTextMenu.text,"마치시겠습니까? (yes/no)");
+		showInputBox(&InputTextMenu);
+		//----for MultiThread--------------------------
+		InputTextBox(&InputTextMenu, &string);
+		//scanf("%s", &cmd[0]);
+
+		if(  strcmp(string, "yes") == 0){
+			printf("구매가 완료됐습니다. 감사합니다.\n");
+			sleep(1);
+			clear();
+			//result = 1;
+			break;
+		}
         
     }
     return result;
