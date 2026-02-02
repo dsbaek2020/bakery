@@ -10,6 +10,9 @@
 #include "ui.h"
 #include <pthread.h>
 
+
+
+
 #define MAX_NUM_OF_BREAD		10
 
 // Define Global Variable
